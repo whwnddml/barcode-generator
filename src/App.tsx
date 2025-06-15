@@ -13,9 +13,13 @@ function App() {
   // 패턴 모드용 상태
   const [patternDate, setPatternDate] = useState(new Date())
   const [amount, setAmount] = useState('12345678')
-  const [storeCode] = useState('34')
+  const [storeCode, setStoreCode] = useState('34')
+  
+  // 모달 상태
+  const [isModalOpen, setIsModalOpen] = useState(false)
   
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const modalCanvasRef = useRef<HTMLCanvasElement>(null)
 
   const barcodeFormats = [
     'CODE128', 'EAN13', 'EAN8', 'UPC', 'CODE39', 'ITF14', 'ITF', 'MSI',
@@ -83,6 +87,33 @@ function App() {
     const newDate = new Date(dateTimeString)
     setPatternDate(newDate)
   }
+
+  // 모달에서 바코드 생성
+  const generateModalBarcode = useCallback(() => {
+    if (modalCanvasRef.current && finalText.trim()) {
+      try {
+        JsBarcode(modalCanvasRef.current, finalText, {
+          format: format,
+          width: width * 2, // 모달에서는 2배 크기
+          height: height * 2,
+          displayValue: displayValue,
+          fontSize: 24,
+          textMargin: 10,
+          margin: 20
+        })
+      } catch (error) {
+        console.error('모달 바코드 생성 오류:', error)
+      }
+    }
+  }, [finalText, format, width, height, displayValue])
+
+  // 모달이 열릴 때 바코드 생성
+  useEffect(() => {
+    if (isModalOpen) {
+      // 모달이 렌더링된 후 바코드 생성하기 위해 setTimeout 사용
+      setTimeout(generateModalBarcode, 100)
+    }
+  }, [isModalOpen, generateModalBarcode])
 
   return (
     <div className="barcode-generator">
@@ -163,14 +194,16 @@ function App() {
               </div>
 
               <div className="control-group">
-                <label>가맹점 코드:</label>
+                <label htmlFor="storeCode">가맹점 코드:</label>
                 <input
+                  id="storeCode"
                   type="text"
                   value={storeCode}
-                  disabled
-                  style={{ backgroundColor: '#f0f0f0', color: '#666' }}
+                  onChange={(e) => setStoreCode(e.target.value.slice(0, 2))}
+                  placeholder="34"
+                  maxLength={2}
                 />
-                <small>고정값: 34</small>
+                <small>2자리 숫자 또는 문자 (기본값: 34)</small>
               </div>
             </>
           )}
@@ -237,7 +270,12 @@ function App() {
         <div className="barcode-display">
           <h3>미리보기</h3>
           <div className="canvas-container">
-            <canvas ref={canvasRef} />
+            <canvas 
+              ref={canvasRef} 
+              onClick={() => finalText.trim() && setIsModalOpen(true)}
+              style={{ cursor: finalText.trim() ? 'pointer' : 'default' }}
+              title={finalText.trim() ? '클릭하면 큰 화면으로 볼 수 있습니다' : ''}
+            />
           </div>
           {!finalText.trim() && (
             <p className="empty-message">
@@ -246,8 +284,64 @@ function App() {
                 : '패턴이 설정되면 바코드가 생성됩니다'}
             </p>
           )}
+          {finalText.trim() && (
+            <p className="click-hint">💡 바코드를 클릭하면 큰 화면으로 볼 수 있습니다</p>
+          )}
         </div>
       </div>
+
+      {/* 바코드 확대 모달 */}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📊 바코드 확대 보기</h3>
+              <button 
+                className="modal-close" 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="modal-barcode-info">
+                <p><strong>텍스트:</strong> {finalText}</p>
+                <p><strong>형식:</strong> {format}</p>
+                {inputMode === 'pattern' && (
+                  <div className="pattern-breakdown">
+                    <p><strong>패턴 구성:</strong></p>
+                    <ul>
+                      <li>날짜시간: {finalText.slice(0, 14)}</li>
+                      <li>금액: {finalText.slice(14, 22)}</li>
+                      <li>가맹점: {finalText.slice(22, 24)}</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="modal-canvas-container">
+                <canvas ref={modalCanvasRef} />
+              </div>
+              <div className="modal-actions">
+                <button 
+                  className="modal-download-btn"
+                  onClick={() => {
+                    if (modalCanvasRef.current) {
+                      const link = document.createElement('a')
+                      const filename = inputMode === 'pattern' ? 'parking-barcode-large' : `barcode-${finalText}-large`
+                      link.download = `${filename}.png`
+                      link.href = modalCanvasRef.current.toDataURL()
+                      link.click()
+                    }
+                  }}
+                >
+                  📥 큰 사이즈로 다운로드
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
