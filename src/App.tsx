@@ -12,7 +12,7 @@ function App() {
   
   // 패턴 모드용 상태
   const [patternDate, setPatternDate] = useState(new Date())
-  const [amount, setAmount] = useState('12345678')
+  const [amount, setAmount] = useState('58000')
   const [storeCode, setStoreCode] = useState('34')
   
   // 모달 상태
