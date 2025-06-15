@@ -401,27 +401,91 @@ small {
   box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
 }
 
-/* 모바일 모달 최적화 */
+/* 모바일 모달 최적화 - 바코드 스캔에 최적화 */
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 40px 10px 10px 10px;
+    padding: 10px 10px 20px 10px;
+    align-items: flex-start;
   }
   
   .modal-content {
     max-width: 95vw;
-    max-height: 95vh;
+    max-height: 90vh;
+    margin-top: 0;
   }
   
   .modal-body {
-    padding: 12px 20px 20px 20px;
+    padding: 8px 16px 16px 16px;
+  }
+  
+  .modal-canvas-container {
+    padding: 12px;
+    margin: 0 0 16px 0;
   }
   
   .modal-close-floating {
-    top: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  /* 바코드 스캔을 위한 추가 최적화 */
+  .modal-barcode-info {
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .modal-barcode-info p {
+    margin: 6px 0;
+  }
+  
+  .pattern-breakdown li {
+    font-size: 0.85rem;
+  }
+}
+
+/* 작은 모바일 화면 (스마트폰) 최적화 */
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 5px 5px 15px 5px;
+  }
+  
+  .modal-content {
+    max-width: 98vw;
+    border-radius: 12px;
+  }
+  
+  .modal-body {
+    padding: 6px 12px 12px 12px;
+  }
+  
+  .modal-canvas-container {
+    padding: 8px;
+    margin: 0 0 12px 0;
+    border-radius: 8px;
+  }
+  
+  .modal-close-floating {
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .modal-barcode-info {
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .modal-download-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
 }
 
