@@ -28,7 +28,15 @@ function App() {
 
   // 패턴 텍스트 생성 함수
   const generatePatternText = useCallback(() => {
-    const dateStr = patternDate.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14)
+    // 로컬 시간을 그대로 사용하여 yyyyMMddHHmmss 형식으로 변환
+    const year = patternDate.getFullYear()
+    const month = String(patternDate.getMonth() + 1).padStart(2, '0')
+    const day = String(patternDate.getDate()).padStart(2, '0')
+    const hours = String(patternDate.getHours()).padStart(2, '0')
+    const minutes = String(patternDate.getMinutes()).padStart(2, '0')
+    const seconds = String(patternDate.getSeconds()).padStart(2, '0')
+    
+    const dateStr = `${year}${month}${day}${hours}${minutes}${seconds}`
     const amountStr = amount.padStart(8, '0').slice(0, 8)
     return `${dateStr}${amountStr}${storeCode}`
   }, [patternDate, amount, storeCode])
