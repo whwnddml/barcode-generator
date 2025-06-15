@@ -303,45 +303,36 @@ small {
   position: relative;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
-  border-radius: 16px 16px 0 0;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #1f2937;
-  font-size: 1.25rem;
-}
-
-.modal-close {
-  background: none;
+.modal-close-floating {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   font-size: 24px;
   cursor: pointer;
   color: #6b7280;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 50%;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
 }
 
-.modal-close:hover {
-  background: #f3f4f6;
+.modal-close-floating:hover {
+  background: rgba(255, 255, 255, 1);
   color: #374151;
+  transform: scale(1.05);
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px 24px 24px 24px;
 }
 
 .modal-barcode-info {
@@ -377,7 +368,7 @@ small {
   padding: 20px;
   background: #f8fafc;
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
   border: 1px solid #e2e8f0;
 }
 
@@ -421,16 +412,16 @@ small {
     max-height: 95vh;
   }
   
-  .modal-header {
-    padding: 16px 20px;
-  }
-  
   .modal-body {
-    padding: 20px;
+    padding: 12px 20px 20px 20px;
   }
   
-  .modal-header h3 {
-    font-size: 1.1rem;
+  .modal-close-floating {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
   }
 }
 

@@ -294,17 +294,17 @@ function App() {
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>📊 바코드 확대 보기</h3>
-              <button 
-                className="modal-close" 
-                onClick={() => setIsModalOpen(false)}
-                aria-label="닫기"
-              >
-                ×
-              </button>
-            </div>
+            <button 
+              className="modal-close-floating" 
+              onClick={() => setIsModalOpen(false)}
+              aria-label="닫기"
+            >
+              ×
+            </button>
             <div className="modal-body">
+              <div className="modal-canvas-container">
+                <canvas ref={modalCanvasRef} />
+              </div>
               <div className="modal-barcode-info">
                 <p><strong>텍스트:</strong> {finalText}</p>
                 <p><strong>형식:</strong> {format}</p>
@@ -318,9 +318,6 @@ function App() {
                     </ul>
                   </div>
                 )}
-              </div>
-              <div className="modal-canvas-container">
-                <canvas ref={modalCanvasRef} />
               </div>
               <div className="modal-actions">
                 <button 
