@@ -286,10 +286,10 @@ small {
   bottom: 0;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 60px 20px 20px 20px;
   backdrop-filter: blur(4px);
 }
 
@@ -404,7 +404,7 @@ small {
 /* 모바일 모달 최적화 */
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 10px;
+    padding: 40px 10px 10px 10px;
   }
   
   .modal-content {
