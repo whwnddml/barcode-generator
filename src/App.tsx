@@ -270,12 +270,16 @@ function App() {
                   value={terminalId}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9]/g, '')
+                    setTerminalId(value.slice(0, 4))
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '')
                     setTerminalId(value.padStart(4, '0').slice(0, 4))
                   }}
                   placeholder="0001"
                   maxLength={4}
                 />
-                <small>4자리 숫자 (자동으로 앞에 0이 채워집니다)</small>
+                <small>4자리 숫자 (포커스를 벗어나면 자동으로 앞에 0이 채워집니다)</small>
               </div>
 
               <div className="control-group">
@@ -286,12 +290,16 @@ function App() {
                   value={sequenceNumber}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9]/g, '')
+                    setSequenceNumber(value.slice(0, 6))
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '')
                     setSequenceNumber(value.padStart(6, '0').slice(0, 6))
                   }}
                   placeholder="000001"
                   maxLength={6}
                 />
-                <small>6자리 숫자 (자동으로 앞에 0이 채워집니다)</small>
+                <small>6자리 숫자 (포커스를 벗어나면 자동으로 앞에 0이 채워집니다)</small>
               </div>
             </>
           )}
