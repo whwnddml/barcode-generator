@@ -3,7 +3,7 @@ import JsBarcode from 'jsbarcode'
 import './App.css'
 
 function App() {
-  const [inputMode, setInputMode] = useState<'text' | 'pattern'>('text')
+  const [inputMode, setInputMode] = useState<'text' | 'pattern' | 'mcdonalds'>('text')
   const [text, setText] = useState('123456789012')
   const [format, setFormat] = useState('CODE128')
   const [width, setWidth] = useState(2)
@@ -14,6 +14,10 @@ function App() {
   const [patternDate, setPatternDate] = useState(new Date())
   const [amount, setAmount] = useState('58000')
   const [storeCode, setStoreCode] = useState('34')
+  
+  // 맥도날드 패턴 모드용 상태
+  const [terminalId, setTerminalId] = useState('0001')
+  const [sequenceNumber, setSequenceNumber] = useState('000001')
   
   // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -26,9 +30,21 @@ function App() {
     'pharmacode', 'codabar'
   ]
 
-  // 패턴 텍스트 생성 함수
+  // 맥도날드 패턴 텍스트 생성 함수
+  const generateMcdonaldsText = useCallback(() => {
+    const year = String(patternDate.getFullYear()).slice(-2)
+    const month = String(patternDate.getMonth() + 1).padStart(2, '0')
+    const day = String(patternDate.getDate()).padStart(2, '0')
+    const hours = String(patternDate.getHours()).padStart(2, '0')
+    const minutes = String(patternDate.getMinutes()).padStart(2, '0')
+    const seconds = String(patternDate.getSeconds()).padStart(2, '0')
+    
+    const dateStr = `${year}${month}${day}${hours}${minutes}${seconds}`
+    return `${dateStr}${terminalId}${sequenceNumber}`
+  }, [patternDate, terminalId, sequenceNumber])
+
+  // 일반 패턴 텍스트 생성 함수
   const generatePatternText = useCallback(() => {
-    // 로컬 시간을 그대로 사용하여 yyyyMMddHHmmss 형식으로 변환
     const year = patternDate.getFullYear()
     const month = String(patternDate.getMonth() + 1).padStart(2, '0')
     const day = String(patternDate.getDate()).padStart(2, '0')
@@ -42,7 +58,11 @@ function App() {
   }, [patternDate, amount, storeCode])
 
   // 실제 바코드 생성에 사용할 텍스트
-  const finalText = inputMode === 'pattern' ? generatePatternText() : text
+  const finalText = useCallback(() => {
+    if (inputMode === 'pattern') return generatePatternText()
+    if (inputMode === 'mcdonalds') return generateMcdonaldsText()
+    return text
+  }, [inputMode, generatePatternText, generateMcdonaldsText, text])()
 
   const generateBarcode = useCallback(() => {
     if (canvasRef.current && finalText.trim()) {
@@ -58,7 +78,6 @@ function App() {
         })
       } catch (error) {
         console.error('바코드 생성 오류:', error)
-        // 에러 발생 시 캔버스 초기화
         const ctx = canvasRef.current.getContext('2d')
         if (ctx) {
           ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
@@ -140,7 +159,7 @@ function App() {
                   type="radio"
                   value="text"
                   checked={inputMode === 'text'}
-                  onChange={(e) => setInputMode(e.target.value as 'text' | 'pattern')}
+                  onChange={(e) => setInputMode(e.target.value as 'text' | 'pattern' | 'mcdonalds')}
                 />
                 텍스트 직접 입력
               </label>
@@ -149,9 +168,18 @@ function App() {
                   type="radio"
                   value="pattern"
                   checked={inputMode === 'pattern'}
-                  onChange={(e) => setInputMode(e.target.value as 'text' | 'pattern')}
+                  onChange={(e) => setInputMode(e.target.value as 'text' | 'pattern' | 'mcdonalds')}
                 />
-                주차 할인 바코드
+                홈플(병점)
+              </label>
+              <label className={`tab ${inputMode === 'mcdonalds' ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  value="mcdonalds"
+                  checked={inputMode === 'mcdonalds'}
+                  onChange={(e) => setInputMode(e.target.value as 'text' | 'pattern' | 'mcdonalds')}
+                />
+                맥날(병점)
               </label>
             </div>
           </div>
@@ -167,7 +195,7 @@ function App() {
                 placeholder="바코드로 변환할 텍스트를 입력하세요"
               />
             </div>
-          ) : (
+          ) : inputMode === 'pattern' ? (
             <>
               <div className="pattern-info">
                 <h4>🅿️ 주차 할인 바코드 (총 24자리)</h4>
@@ -212,6 +240,58 @@ function App() {
                   maxLength={2}
                 />
                 <small>2자리 숫자 또는 문자 (기본값: 34)</small>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="pattern-info">
+                <h4>🍔 맥도날드 주차 할인 바코드 (총 22자리)</h4>
+                <p>출력일시(12자리) + 단말기ID(4자리) + 시퀀스번호(6자리)</p>
+                <div className="pattern-preview">
+                  <strong>생성될 패턴: {finalText}</strong>
+                </div>
+              </div>
+              
+              <div className="control-group">
+                <label htmlFor="datetime">날짜 및 시간:</label>
+                <input
+                  id="datetime"
+                  type="datetime-local"
+                  value={formatDateTimeLocal(patternDate)}
+                  onChange={(e) => handleDateTimeChange(e.target.value)}
+                />
+              </div>
+
+              <div className="control-group">
+                <label htmlFor="terminalId">단말기 ID:</label>
+                <input
+                  id="terminalId"
+                  type="text"
+                  value={terminalId}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '')
+                    setTerminalId(value.padStart(4, '0').slice(0, 4))
+                  }}
+                  placeholder="0001"
+                  maxLength={4}
+                />
+                <small>4자리 숫자 (자동으로 앞에 0이 채워집니다)</small>
+              </div>
+
+              <div className="control-group">
+                <label htmlFor="sequenceNumber">시퀀스 번호:</label>
+                <input
+                  id="sequenceNumber"
+                  type="text"
+                  value={sequenceNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '')
+                    setSequenceNumber(value.padStart(6, '0').slice(0, 6))
+                  }}
+                  placeholder="000001"
+                  maxLength={6}
+                />
+                <small>6자리 숫자 (자동으로 앞에 0이 채워집니다)</small>
               </div>
             </>
           )}
@@ -289,7 +369,7 @@ function App() {
             <p className="empty-message">
               {inputMode === 'text' 
                 ? '텍스트를 입력하면 바코드가 생성됩니다' 
-                : '패턴이 설정되면 바코드가 생성됩니다'}
+                : inputMode === 'pattern' ? '패턴이 설정되면 바코드가 생성됩니다' : '패턴이 설정되면 바코드가 생성됩니다'}
             </p>
           )}
           {finalText.trim() && (
@@ -316,7 +396,7 @@ function App() {
               <div className="modal-barcode-info">
                 <p><strong>텍스트:</strong> {finalText}</p>
                 <p><strong>형식:</strong> {format}</p>
-                {inputMode === 'pattern' && (
+                {inputMode === 'pattern' ? (
                   <div className="pattern-breakdown">
                     <p><strong>패턴 구성:</strong></p>
                     <ul>
@@ -325,6 +405,17 @@ function App() {
                       <li>가맹점: {finalText.slice(22, 24)}</li>
                     </ul>
                   </div>
+                ) : inputMode === 'mcdonalds' ? (
+                  <div className="pattern-breakdown">
+                    <p><strong>패턴 구성:</strong></p>
+                    <ul>
+                      <li>출력일시: {finalText.slice(0, 12)}</li>
+                      <li>단말기ID: {finalText.slice(12, 16)}</li>
+                      <li>시퀀스번호: {finalText.slice(16, 22)}</li>
+                    </ul>
+                  </div>
+                ) : (
+                  <p>텍스트: {finalText}</p>
                 )}
               </div>
               <div className="modal-actions">

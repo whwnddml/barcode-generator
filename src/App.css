@@ -190,14 +190,14 @@ input[type="range"]::-moz-range-thumb {
 
 /* 입력 모드 탭 스타일 */
 .input-mode-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 10px;
 }
 
 .input-mode-tabs .tab {
-  flex: 1;
-  padding: 12px 16px;
+  padding: 12px 8px;
   border: 2px solid #e1e5e9;
   border-radius: 8px;
   background: #f8fafc;
@@ -206,6 +206,11 @@ input[type="range"]::-moz-range-thumb {
   text-align: center;
   font-weight: 500;
   position: relative;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
 }
 
 .input-mode-tabs .tab:hover {
@@ -445,6 +450,15 @@ small {
   
   .pattern-breakdown li {
     font-size: 0.85rem;
+  }
+  
+  .input-mode-tabs {
+    grid-template-columns: 1fr;
+  }
+  
+  .input-mode-tabs .tab {
+    min-height: 50px;
+    font-size: 1rem;
   }
 }
 
